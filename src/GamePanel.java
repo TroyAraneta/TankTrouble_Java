@@ -5,26 +5,30 @@ import java.util.List;
 import java.util.*;
 
 public class GamePanel extends JPanel implements KeyListener, ActionListener {
+    // Constants
     public static final int CELL_SIZE = 45;
     public static final int ROWS = 12;
     public static final int COLS = 20;
+    private static final int POWERUP_SPAWN_INTERVAL = 30000;
 
-    private final Set<Integer> keys = new HashSet<>();
-    private final List<Bullet> bullets = new ArrayList<>();
-    private final javax.swing.Timer timer = new javax.swing.Timer(16, this);
-    private List<ExplosionEffect> explosions = new ArrayList<>();
-    private long lastPowerUpSpawnTime = System.currentTimeMillis();
-
-    public ScorePanel scorePanel;
-    private boolean needsRoundEndCheck = false;
-    private List<Tank> destroyedThisFrame = new ArrayList<>();
-    private final Maze maze = new Maze(ROWS, COLS);
+    // Game State
     private boolean gameOver = false;
     private boolean resetScheduled = false;
     private boolean wallDeathOccurred = false;
-
-    private Tank[] players;
+    private boolean needsRoundEndCheck = false;
     private int playerCount = 2;
+    private long lastPowerUpSpawnTime = System.currentTimeMillis();
+
+    // Objects
+    private final Maze maze = new Maze(ROWS, COLS);
+    private final Tank[] players;
+    private final List<Bullet> bullets = new ArrayList<>();
+    private final List<PowerUp> powerUps = new ArrayList<>();
+    private final List<ExplosionEffect> explosions = new ArrayList<>();
+    private final List<Tank> destroyedThisFrame = new ArrayList<>();
+
+    // Controls
+    private final Set<Integer> keys = new HashSet<>();
     private final int[][] controls = {
             {KeyEvent.VK_W, KeyEvent.VK_S, KeyEvent.VK_A, KeyEvent.VK_D, KeyEvent.VK_SPACE},
             {KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT, KeyEvent.VK_ENTER},
@@ -32,8 +36,11 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
             {KeyEvent.VK_T, KeyEvent.VK_G, KeyEvent.VK_F, KeyEvent.VK_H, KeyEvent.VK_B}
     };
 
-    private final List<PowerUp> powerUps = new ArrayList<>();
+    // Utilities
+    private final javax.swing.Timer timer = new javax.swing.Timer(16, this);
     private final Random random = new Random();
+    public final ScorePanel scorePanel;
+
 
     public GamePanel(ScorePanel scorePanel) {
         this.scorePanel = scorePanel;
@@ -57,7 +64,7 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
             public void run() {
                 SwingUtilities.invokeLater(() -> spawnRandomPowerUps());
             }
-        }, 25000, 25000);
+        }, POWERUP_SPAWN_INTERVAL, POWERUP_SPAWN_INTERVAL);
     }
 
     public void addBullet(Bullet bullet) {
@@ -66,9 +73,8 @@ public class GamePanel extends JPanel implements KeyListener, ActionListener {
 
     private void initializePlayers() {
         Color[] colors = {Color.GREEN, Color.RED, Color.ORANGE, Color.YELLOW};
-        String[] images = {"/tank1.png", "/tank2.png", "/tank3.png", "/tank4.png"};
         for (int i = 0; i < 4; i++) {
-            players[i] = new Tank(colors[i], images[i]);
+            players[i] = new Tank(colors[i]);
         }
     }
 

@@ -89,23 +89,6 @@ public class Maze {
         return true;
     }
 
-    public boolean isFree(float x, float y) {
-        int r = (int) y / GamePanel.CELL_SIZE;
-        int c = (int) x / GamePanel.CELL_SIZE;
-        if (r < 0 || r >= rows || c < 0 || c >= cols) return false;
-
-        float offsetX = x % GamePanel.CELL_SIZE;
-        float offsetY = y % GamePanel.CELL_SIZE;
-        int half = 4;
-
-        if (walls[r][c][0] && offsetY < half) return false;
-        if (walls[r][c][2] && offsetY > GamePanel.CELL_SIZE - half) return false;
-        if (walls[r][c][3] && offsetX < half) return false;
-        if (walls[r][c][1] && offsetX > GamePanel.CELL_SIZE - half) return false;
-
-        return true;
-    }
-
     public void draw(Graphics g) {
         g.setColor(Color.BLACK);
         Graphics2D g2 = (Graphics2D) g;

@@ -1,21 +1,24 @@
 import java.awt.*;
 
 public class Bullet {
-    protected static final float SPEED = 3.5f;
+    // Constants
+    protected static final float SPEED = 3f;
     private static final float RADIUS = 3f;
     private static final int MAX_LIFETIME = 600;
+    private static final int BASE_SIZE = 7;
 
-    protected float x, y, dx, dy;
-    protected int lifetime; // lifetime in frames
-    protected boolean active;
-    private int maxLifetime = MAX_LIFETIME; // Default unless overridden
+    // Core bullet properties
+    protected float x, y;          // Position
+    protected float dx, dy;        // Movement vector
+    protected int lifetime;        // Frames alive
+    protected boolean active;      // Active state
+    private int maxLifetime = MAX_LIFETIME;
+    private float sizeMultiplier = 1.0f;
+
+    // References
     public final Maze maze;
     protected final GamePanel gamePanel;
-    protected final Tank owner;  // Track which tank fired this bullet
-    protected boolean isPowerUpBullet;  // Flag for power-up bullets
-
-    private float sizeMultiplier;
-    private static final int BASE_SIZE = 7; // example base size
+    protected final Tank owner;    // Null if environment bullet
 
     public Bullet(float x, float y, float angle, Maze maze, float speed, int customLifetime,
                   float sizeMultiplier, GamePanel gamePanel) {
@@ -35,7 +38,6 @@ public class Bullet {
         this.maxLifetime = customLifetime;
         this.sizeMultiplier = sizeMultiplier;
         this.owner = owner;
-        this.isPowerUpBullet = sizeMultiplier != 1.0f;  // Mark as power-up if size isn't normal
     }
 
     public void draw(Graphics g) {
@@ -46,10 +48,6 @@ public class Bullet {
 
     public boolean isActive() {
         return active;
-    }
-
-    public boolean isPowerUpBullet() {
-        return isPowerUpBullet;
     }
 
     public float getSize() {

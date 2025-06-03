@@ -8,33 +8,41 @@ import java.util.LinkedList;
 import java.util.Arrays;
 
 public class Tank {
+    // Core tank properties
     private float x, y;
     private float angle = 0f;  // radians
-    private final Color color;
+    private BufferedImage sprite;
+    private boolean destroyed = false;
+    private int score;
+
+    // Movement and physics
+    private final float speed = 2.5f;
+    private final float rotationSpeed = 0.05f;
     public static final int SIZE = 20;
     private static final int HITBOX_SIZE = 20;
-    private BufferedImage sprite;
-    private final float speed = 2.5f;
-    private int score;
-    private boolean destroyed = false;
-    private static final Random rand = new Random();
-    private final float rotationSpeed = 0.05f;
+
+    // Bullet management
     private int maxBullets = 5;
     private int activeBullets = 0;
+    private int activeNormalBullets = 0;
+    private int activePowerUpBullets = 0;
+    private final LinkedList<Long> shotTimestamps = new LinkedList<>();
+
+    // Power-up states
     private float bulletSize = 1.0f;
     private boolean miniBulletsActive = false;
     private int miniBulletsFired = 0;
     private static final int MAX_MINI_BULLETS = 3;
     private int homingMissiles = 0;
     private boolean hasBlock = false;
-    private int activeNormalBullets = 0;  // Track normal bullets separately
-    private int activePowerUpBullets = 0; // Track power-up bullets separately
 
-    private final LinkedList<Long> shotTimestamps = new LinkedList<>();
+    // Effects
     private ShieldEffect shieldEffect;
 
-    public Tank(Color color, String imagePath) {
-        this.color = color;
+    // Utilities
+    private static final Random rand = new Random();
+
+    public Tank(Color color) {
         try {
             if (color.equals(Color.GREEN)) {
                 sprite = ImageIO.read(getClass().getResource("/images/tank1.png"));
@@ -60,10 +68,6 @@ public class Tank {
 
     public void resetScore() {
         score = 0;
-    }
-
-    public void setMaxBullets(int max) {
-        this.maxBullets = max;
     }
 
     public boolean hasBlock() {
@@ -99,12 +103,6 @@ public class Tank {
         } while (!maze.isAreaFree(x - HITBOX_SIZE / 2f, y - HITBOX_SIZE / 2f, HITBOX_SIZE, HITBOX_SIZE)
                 && attempts < 100);
         angle = 0f;
-    }
-
-    public void spawnFarFrom(Maze maze, Tank other) {
-        do {
-            spawn(maze);
-        } while (Math.abs(x - other.x) < 30 && Math.abs(y - other.y) < 30);
     }
 
     public void update(Set<Integer> keys, Maze maze, int forward, int backward, int left, int right) {
@@ -172,12 +170,12 @@ public class Tank {
     public Bullet fire(Maze maze, GamePanel gamePanel) {
         if (destroyed || !canFire()) return null;
 
-        // Check if we're firing normal bullets (limited by activeNormalBullets)
+        // Check if we're firing normal bullets
         if (!miniBulletsActive && bulletSize <= 1.0f && homingMissiles <= 0) {
             if (activeNormalBullets >= maxBullets) return null;
         }
 
-        float bulletSpeed = 3f;
+        float bulletSpeed = Bullet.SPEED;
         int bulletLifetime = 600;
         float bulletRadius = 3f * bulletSize;
         float step = 1.0f;
@@ -357,21 +355,8 @@ public class Tank {
         shotTimestamps.clear();
     }
 
-    public void resetPowerUps() {
-        deactivateMiniBullets();
-        removeHomingMissiles();
-    }
-
-    public float getAngle() {
-        return angle;
-    }
-
     public void setBulletSize(float size) {
         this.bulletSize = size;
-    }
-
-    public float getBulletSize() {
-        return bulletSize;
     }
 
     public float getX() {
